@@ -1,0 +1,48 @@
+import requests
+
+from bs4 import BeautifulSoup
+
+fid = 0
+from_ = ''
+item_id = ''
+
+cookies = {'major_id': '32',
+           'has_js': '1',
+           '_qddaz': 'QD.qvmdp1.vvt1mm.jqlpb2mp',
+           '_qddab': '4-331wv1.jqlpb2r7',
+           'uc_local_login': '2',
+           'uc_uid': '47627',
+           'user_sys_key': 'fTZq2in0zTEgBJTsVme2ONkNOPSXpouafl0eC7scLok5h-g0OLM4L7MxbgGTJWGb7R6Z5aprZ07RTX-f8iztnk0f3QHfq09Y2zGU5GGS2K7p5P7zOaCusYzvUd_w0uCQlu5kYcEUWKLPoYKN5Vmg9LY',
+           'SESSa2fd26096ecc5efa52e3ea6bdefea06a': 'R0Z2WrDf5cnpc97uyFmCMR_zcpFdz0HWtkDE-O8JFrw',
+           'fid': '60634'}
+
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Cache - Control': 'max - age = 0',
+    'Accept-Encoding': 'gzip, deflate',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/71.0.3578.98 Safari/537.36 '
+}
+
+
+r = requests.get(url='http://39.106.4.51/?q=items/student/study/75939', cookies=cookies)
+r_Bea = BeautifulSoup(r.text, 'html.parser')
+# print(r.text)
+for mess in r_Bea.find_all('a', class_='itemtitle'):
+    # print(mess)
+    if '(视频文件)' in mess.get('title'):
+        # print(mess.get('href'))
+        vi = requests.get(url='http://39.106.4.51'+str(mess.get('href')), cookies=cookies)
+        asd = BeautifulSoup(vi.text, 'html.parser')
+        for kjsa in asd.find_all('div', style='width:100%;height:500px;position:relative;'):
+            # print(str(kjsa.get('id')).split('videobox_')[1])
+            from_ = "http://39.106.4.51"+str(mess.get('href'))
+            fid = str(kjsa.get('id')).split('videobox_')[1]
+            item_id = from_.split('/')[-1]
+            data_video = {'time': '100.00', 'fid': fid, 'totaltime': '100.00', 'resource': '', 'from': from_,
+                          'item_id': item_id}
+            oiasd = requests.post(url='http://39.106.4.51/?q=items/study/current/save', cookies=cookies, data=data_video)
+
+    else:
+        requests.get(url='http://39.106.4.51'+str(mess.get('href')), cookies=cookies)
